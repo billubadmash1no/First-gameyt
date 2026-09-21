@@ -1,0 +1,1839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Arrow Weave</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #12141c;
+    --panel: #1b1e2b;
+    --panel-2: #232739;
+    --line: #2c3145;
+    --ink: #eef0f7;
+    --sub: #8b90a6;
+    --gold: #e8b54d;
+    --danger: #e8735a;
+    --good: #4ecdb0;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #1c2033 0%, var(--bg) 60%);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    min-height:100%;
+    padding:18px 14px 40px;
+  }
+  h1{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:28px;
+    letter-spacing:0.5px;
+    margin:4px 0 2px;
+    color:var(--ink);
+  }
+  .tag{
+    color:var(--sub);
+    font-size:13px;
+    margin-bottom:16px;
+  }
+  .hud{
+    width:100%;
+    max-width:420px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .pill{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:8px 14px;
+    font-size:14px;
+    font-weight:600;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .hearts{display:flex; gap:4px;}
+  .pill.danger-text{ color: var(--danger); border-color: var(--danger); }
+  .tutorial-banner{
+    width:100%;
+    max-width:420px;
+    display:flex;
+    align-items:flex-start;
+    gap:8px;
+    background:rgba(95,208,243,0.12);
+    border:1px solid #5fd0f3;
+    color:var(--ink);
+    border-radius:12px;
+    padding:10px 12px;
+    font-size:12.5px;
+    line-height:1.4;
+    margin-bottom:12px;
+  }
+  .tutorial-banner button{
+    background:none;
+    color:#5fd0f3;
+    font-size:14px;
+    line-height:1;
+    padding:2px 4px;
+    flex-shrink:0;
+  }
+  .landing-panel{
+    width:100%;
+    max-width:420px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:16px 16px 18px;
+    margin-bottom:16px;
+  }
+  .landing-title{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:15px;
+    margin:0 0 12px;
+    color:var(--ink);
+    font-weight:600;
+  }
+  .landing-list{
+    list-style:none;
+    margin:0 0 16px;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:9px;
+  }
+  .landing-list li{
+    font-size:12.5px;
+    line-height:1.4;
+    color:var(--sub);
+    display:flex;
+    align-items:flex-start;
+    gap:8px;
+  }
+  .landing-list li b{ color:var(--ink); }
+  .landing-icon{ flex-shrink:0; font-size:15px; line-height:1.3; }
+  .landing-play-btn{
+    width:100%;
+    padding:14px;
+    font-size:15px;
+    border-radius:12px;
+    box-shadow:0 10px 24px -10px rgba(232,181,77,0.5);
+  }
+  .heart{width:16px;height:16px;}
+  .modebar{
+    width:100%;
+    max-width:420px;
+    display:flex;
+    gap:8px;
+    margin-bottom:14px;
+  }
+  button{
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+    border:none;
+    outline:none;
+  }
+  .btn{
+    background:var(--panel-2);
+    color:var(--ink);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:9px 14px;
+    font-size:13px;
+    font-weight:600;
+    transition:transform .1s ease, background .15s ease;
+  }
+  .btn:hover{background:#2a2f45;}
+  .btn:active{transform:scale(0.96);}
+  .btn.primary{
+    background:var(--gold);
+    color:#1a1508;
+    border-color:transparent;
+  }
+  .btn.primary:hover{background:#f0c467;}
+  .btn.danger{background:transparent;border-color:var(--danger);color:var(--danger);}
+  .btn.active{background:var(--gold); color:#1a1508; border-color:transparent;}
+  .btn.small{padding:6px 10px; font-size:12px;}
+  .segmented{
+    display:flex;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:3px;
+    gap:3px;
+    flex:1;
+  }
+  .segmented .btn{flex:1; background:transparent; border:none; padding:7px 8px;}
+  .segmented .btn.active{background:var(--gold); color:#1a1508;}
+
+  .board-wrap{
+    position:relative;
+    width:100%;
+    max-width:420px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:14px;
+    box-shadow:0 20px 50px -20px rgba(0,0,0,0.6);
+  }
+  canvas{
+    display:block;
+    width:100%;
+    height:auto;
+    border-radius:10px;
+    touch-action:none;
+  }
+  .overlay{
+    position:absolute;
+    inset:14px;
+    border-radius:10px;
+    background:rgba(18,20,28,0.92);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    text-align:center;
+    padding:20px;
+  }
+  .overlay h2{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:24px;
+    margin:0;
+  }
+  .overlay p{color:var(--sub); margin:0; font-size:14px;}
+  .overlay .row{display:flex; gap:10px; margin-top:6px;}
+  .hidden{display:none !important;}
+
+  .toolbar{
+    width:100%;
+    max-width:420px;
+    margin-top:14px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .row-wrap{display:flex; gap:8px; flex-wrap:wrap;}
+  .panel-box{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:12px;
+  }
+  .panel-box h3{
+    margin:0 0 8px;
+    font-size:13px;
+    text-transform:none;
+    color:var(--sub);
+    font-weight:600;
+  }
+  .arrow-list{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin-top:8px;
+  }
+  .chip{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:5px 8px;
+    font-size:12px;
+  }
+  .swatch{width:10px;height:10px;border-radius:3px;}
+  .chip button{
+    background:none;
+    color:var(--sub);
+    font-size:14px;
+    line-height:1;
+    padding:0 2px;
+  }
+  .chip button:hover{color:var(--danger);}
+  textarea{
+    width:100%;
+    min-height:100px;
+    background:#0e1019;
+    color:var(--ink);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:8px;
+    font-family:monospace;
+    font-size:11px;
+    resize:vertical;
+  }
+  label.small{font-size:12px; color:var(--sub); display:flex; align-items:center; gap:6px;}
+  select, input[type=number]{
+    background:var(--panel-2);
+    color:var(--ink);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:6px 8px;
+    font-size:12px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Arrow Weave</h1>
+<div class="tag">Clear every arrow — but only when its path is free</div>
+
+<div class="board-wrap">
+  <canvas id="board"></canvas>
+  <div class="overlay hidden" id="overlayLose">
+    <h2 style="color:var(--danger)" id="loseTitle">Out of hearts</h2>
+    <p id="loseText">That path was blocked one too many times.</p>
+    <p id="loseBest" style="font-size:12px;"></p>
+    <div class="row">
+      <button class="btn primary" id="btnRetry">Retry level</button>
+      <button class="btn" id="btnNewAfterLose">New game</button>
+    </div>
+  </div>
+  <div class="overlay hidden" id="overlayWin">
+    <h2 style="color:var(--good)">Cleared!</h2>
+    <div class="row" id="starsRow" style="gap:6px; margin:2px 0 4px;"></div>
+    <p id="winSub">Every arrow found its way out.</p>
+    <div class="row">
+      <button class="btn primary" id="btnNextLevel">Next level</button>
+    </div>
+  </div>
+</div>
+
+<div id="landingPanel" class="landing-panel">
+  <h2 class="landing-title">✨ Live preview above — here's how to play</h2>
+  <ul class="landing-list">
+    <li><span class="landing-icon">👆</span> Tap any arrow to send it flying off the board.</li>
+    <li><span class="landing-icon">❤️</span> Tap one that's blocked and it shakes red — that costs a heart.</li>
+    <li><span class="landing-icon">⏱️</span> Clear the whole board before the timer hits zero.</li>
+    <li><span class="landing-icon">🔥</span> <b>Fire arrows</b> burn every arrow touching them when cleared — instant bonus points.</li>
+    <li><span class="landing-icon">❄️</span> <b>Frozen arrows</b> won't budge until every arrow on one specific side of them is gone — then they thaw.</li>
+    <li><span class="landing-icon">🔒</span> <b>Locked arrows</b> need their hidden "key" arrow cleared first before they'll move.</li>
+    <li><span class="landing-icon">💡</span> Stuck? Spend a hint to reveal a move that's ready to go.</li>
+    <li><span class="landing-icon">↩️</span> One free undo per level if you tap the wrong one.</li>
+    <li><span class="landing-icon">⭐</span> Clear a level without losing a heart for a perfect 3-star run.</li>
+  </ul>
+  <button class="btn primary landing-play-btn" id="btnPlayNow">▶ Play Now</button>
+</div>
+
+<div class="hud hidden" id="hudMain">
+  <div class="pill">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e8b54d" stroke-width="2.5"><path d="M4 20 L20 4 M20 4 H10 M20 4 V14"/></svg>
+    <span id="scoreVal">0</span>
+  </div>
+  <div class="pill hearts" id="heartsWrap"></div>
+  <div class="pill" id="timerPill">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5fd0f3" stroke-width="2.2"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg>
+    <span id="timerVal">30</span>s
+  </div>
+  <div class="pill" id="diffPill">Level 1</div>
+</div>
+
+<div class="hud hidden" id="hudSecondary" style="margin-top:-8px;">
+  <div class="pill" style="font-size:12px;">
+    🏆 Best: <span id="bestVal">0</span>
+  </div>
+  <div class="pill hidden" id="comboPill" style="font-size:12px; color:var(--gold); border-color:var(--gold);">
+    🔥 Combo x<span id="comboVal">0</span>
+  </div>
+</div>
+
+<div class="modebar hidden" id="modeBar">
+  <div class="segmented">
+    <button class="btn active" id="btnPlayMode">Play</button>
+    <button class="btn" id="btnEditMode">Editor</button>
+  </div>
+  <button class="btn" id="btnColorblind" style="flex:0 0 auto; padding:9px 12px;" title="Colorblind mode: numbers + dash patterns">🎨</button>
+  <button class="btn" id="btnMute" style="flex:0 0 auto; padding:9px 12px;" title="Mute sound">
+    <svg id="muteIconOn" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#eef0f7" stroke-width="2"><path d="M5 9v6h4l5 5V4L9 9H5z"/><path d="M16 8a5 5 0 010 8" stroke-linecap="round"/></svg>
+    <svg id="muteIconOff" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#eef0f7" stroke-width="2" style="display:none"><path d="M5 9v6h4l5 5V4L9 9H5z"/><path d="M17 9l5 6M22 9l-5 6" stroke-linecap="round"/></svg>
+  </button>
+</div>
+
+<div class="tutorial-banner hidden" id="tutorialBanner">
+  <span>Tap an arrow to send it out. If another arrow blocks its path, tapping it shakes red and costs a heart. Clear every arrow before the timer runs out!</span>
+  <button id="btnDismissTutorial" title="Got it">✕</button>
+</div>
+
+<div class="row-wrap hidden" id="hintBar" style="max-width:420px; width:100%; justify-content:center; margin-top:12px;">
+  <button class="btn" id="btnHint" style="display:flex; align-items:center; gap:6px;">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#e8b54d" stroke-width="2"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.5 10.9c.4.3.6.8.6 1.3V16h5.8v-.8c0-.5.2-1 .6-1.3A6 6 0 0012 3z"/></svg>
+    Hint <span id="hintCount">0</span>
+  </button>
+  <button class="btn" id="btnUndo" style="display:flex; align-items:center; gap:6px;">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5fd0f3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 016 6v1"/></svg>
+    Undo
+  </button>
+</div>
+
+<div class="toolbar hidden" id="playTools">
+  <div class="row-wrap">
+    <button class="btn primary" id="btnGenerate" style="flex:1">🎲 New game</button>
+    <button class="btn" id="btnDaily" style="flex:1">📅 Daily challenge</button>
+  </div>
+  <div class="row-wrap hidden" id="levelSelectRow" style="align-items:center;">
+    <label class="small">Jump to level</label>
+    <input type="number" id="levelSelectInput" min="1" value="1" style="width:64px; background:var(--panel-2); color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:6px 8px; font-size:12px;">
+    <button class="btn small" id="btnLevelGo">Go</button>
+  </div>
+</div>
+
+
+<div class="toolbar hidden" id="editTools">
+  <div class="panel-box">
+    <h3>Grid size</h3>
+
+    <div class="row-wrap" style="align-items:center;">
+      <label class="small">Cols <input type="number" id="editCols" min="4" max="10" value="6" style="width:52px"></label>
+      <label class="small">Rows <input type="number" id="editRows" min="4" max="12" value="8" style="width:52px"></label>
+      <button class="btn small" id="btnResize">Resize (clears board)</button>
+    </div>
+  </div>
+
+  <div class="panel-box">
+    <h3>Draw a path</h3>
+    <p style="margin:0 0 8px;font-size:12px;color:var(--sub);">Tap a cell to start, then tap adjacent cells to extend the path. Finish when it has 2+ cells.</p>
+    <div class="row-wrap">
+      <button class="btn small" id="btnFinishPath">Finish arrow</button>
+      <button class="btn small" id="btnUndoPoint">Undo point</button>
+      <button class="btn small danger" id="btnCancelPath">Cancel path</button>
+    </div>
+  </div>
+
+  <div class="panel-box">
+    <h3>Arrows on board (<span id="arrowCount">0</span>)</h3>
+    <div class="arrow-list" id="arrowList"></div>
+    <div class="row-wrap" style="margin-top:10px;">
+      <button class="btn small danger" id="btnClearAll">Clear all</button>
+      <button class="btn small primary" id="btnTestPlay">▶ Test play</button>
+    </div>
+  </div>
+
+  <div class="panel-box">
+    <h3>Import / export</h3>
+    <div class="row-wrap" style="margin-bottom:8px;">
+      <button class="btn small" id="btnExport">Export JSON</button>
+      <button class="btn small" id="btnImport">Import JSON</button>
+    </div>
+    <textarea id="jsonBox" placeholder="Level JSON appears here, or paste one to import"></textarea>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- constants ----------
+  const VEC = { U:{dr:-1,dc:0}, D:{dr:1,dc:0}, L:{dr:0,dc:-1}, R:{dr:0,dc:1} };
+  const OPP = { U:'D', D:'U', L:'R', R:'L' };
+  const PALETTE = ['#e8b54d','#4ecdb0','#e8735a','#8c9eff','#c792ea','#5fd0f3','#f0a6c2','#a3d977'];
+  const LEVEL_SECONDS = 30;
+  const MAX_HINTS = 3;
+  const MAX_LEVEL_SECONDS = 60;
+  const TUTORIAL_SEED = 20260101; // fixes level 1's board so it's always identical
+  const MAX_ARROWS = 60;
+  const BOARD_MAX_W = 380, BOARD_MAX_H = 560; // px budget the board scales to fit
+
+  // Starts at 30s. From level 5 on, +5s every 5th level (5, 10, 15...),
+  // capped at 60s so it never becomes untimed.
+  function getLevelTime(level){
+    const bracket = Math.floor(level / 5);
+    return Math.min(MAX_LEVEL_SECONDS, LEVEL_SECONDS + bracket*5);
+  }
+
+  // Levels 1-2 are exactly the hand-tuned baseline. From level 3 on: the
+  // grid grows, arrow count climbs +4/level up to a 60-arrow cap, paths
+  // gain more turns (segMax) and shrink toward single-cell steps (lenMax),
+  // and from level 4 on a few arrows get locked behind a "key" arrow.
+  function getLevelConfig(level){
+    if(level<=2){
+      return { cols:8, rows:12, count:9, segMin:2, segMax:3, lenMin:1, lenMax:2, lives:3, lockCount:0, freezeCount:0, fireCount:0 };
+    }
+    const extra = level - 2;
+    // Ramp steeply so the board hits max density (60 arrows, full grid,
+    // max turns, max locks) by around level 10, then holds there.
+    const cols = Math.min(18, 8 + Math.floor(extra*1.3));
+    const rows = Math.min(24, 12 + Math.floor(extra*1.6));
+    const count = Math.min(MAX_ARROWS, 9 + extra*7);
+    const segMax = Math.min(4, 2 + Math.floor(extra/2));
+    const lenMax = extra >= 4 ? 1 : 2;
+    const lockCount = level < 4 ? 0 : Math.min(5, 1 + Math.floor((level-4)/1.5));
+    const freezeCount = level < 4 ? 0 : Math.min(2, 1 + Math.floor((level-4)/6));
+    const fireCount = level < 3 ? 0 : Math.min(2, 1 + Math.floor((level-3)/6));
+    return { cols, rows, count, segMin:2, segMax, lenMin:1, lenMax, lives:3, lockCount, freezeCount, fireCount };
+  }
+
+  function keyOf(r,c){ return r+'_'+c; }
+
+  // Swappable RNG: Math.random for endless play, a seeded generator for
+  // daily challenges so "same seed = same board" for everyone that day.
+  let rand = Math.random;
+  function mulberry32(seed){
+    return function(){
+      seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function hashStr(s){
+    let h = 1779033703 ^ s.length;
+    for(let i=0;i<s.length;i++){
+      h = Math.imul(h ^ s.charCodeAt(i), 3432918353);
+      h = (h<<13) | (h>>>19);
+    }
+    return (h ^ (h>>>16)) >>> 0;
+  }
+  function todayStr(){
+    const d = new Date();
+    return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+  }
+
+  function randInt(a,b){ return a + Math.floor(rand()*(b-a+1)); }
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(rand()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  }
+
+  // ---------- state ----------
+  const state = {
+    mode: 'play',
+    cols: 6, rows: 9, cellSize: 46,
+    arrows: [],       // {id, cells:[{r,c}], lockedBy, color, removing:false, removeStart:0, shakeUntil:0}
+    nextId: 1,
+    lives: 3, maxLives: 3, score: 0,
+    level: 1,
+    timeLeft: LEVEL_SECONDS,
+    lastFrameTime: 0,
+    hintBank: 1, hintUsedThisLevel: false, hintId: null, hintUntil: 0,
+    combo: 0,
+    undoUsedThisLevel: false, lastClear: null,
+    isDaily: false, dailySeedDate: null,
+    tutorialActive: false, tutorialTarget: null,
+    attractMode: true, attractLastTap: 0, attractResetAt: 0,
+    colorblind: false,
+    bestScore: 0, bestLevel: 0,
+    _won: false, _lost: false,
+    // editor
+    editingPath: [],
+    // canvas
+    canvas: null, ctx: null,
+    animRunning: false
+  };
+
+  const els = {
+    scoreVal: document.getElementById('scoreVal'),
+    heartsWrap: document.getElementById('heartsWrap'),
+    diffPill: document.getElementById('diffPill'),
+    overlayLose: document.getElementById('overlayLose'),
+    overlayWin: document.getElementById('overlayWin'),
+    winSub: document.getElementById('winSub'),
+    starsRow: document.getElementById('starsRow'),
+    playTools: document.getElementById('playTools'),
+    editTools: document.getElementById('editTools'),
+    arrowList: document.getElementById('arrowList'),
+    arrowCount: document.getElementById('arrowCount'),
+    jsonBox: document.getElementById('jsonBox'),
+    editCols: document.getElementById('editCols'),
+    editRows: document.getElementById('editRows'),
+    hintBar: document.getElementById('hintBar'),
+    hintCount: document.getElementById('hintCount'),
+    btnHint: document.getElementById('btnHint'),
+    timerPill: document.getElementById('timerPill'),
+    timerVal: document.getElementById('timerVal'),
+    loseTitle: document.getElementById('loseTitle'),
+    loseText: document.getElementById('loseText'),
+    loseBest: document.getElementById('loseBest'),
+    bestVal: document.getElementById('bestVal'),
+    comboPill: document.getElementById('comboPill'),
+    comboVal: document.getElementById('comboVal'),
+    btnColorblind: document.getElementById('btnColorblind'),
+    btnUndo: document.getElementById('btnUndo'),
+    btnDaily: document.getElementById('btnDaily'),
+    levelSelectInput: document.getElementById('levelSelectInput'),
+    tutorialBanner: document.getElementById('tutorialBanner'),
+  };
+
+  // ---------- persistence (local best score/streak, colorblind pref) ----------
+  function loadPersisted(){
+    try{
+      state.bestScore = parseInt(localStorage.getItem('arrowWeave_bestScore')) || 0;
+      state.bestLevel = parseInt(localStorage.getItem('arrowWeave_bestLevel')) || 0;
+      state.colorblind = localStorage.getItem('arrowWeave_colorblind') === '1';
+    }catch(e){ /* localStorage unavailable - just play without persistence */ }
+  }
+  function saveBestIfBeaten(){
+    try{
+      if(state.score > state.bestScore){
+        state.bestScore = state.score;
+        localStorage.setItem('arrowWeave_bestScore', String(state.bestScore));
+      }
+      if(state.level > state.bestLevel){
+        state.bestLevel = state.level;
+        localStorage.setItem('arrowWeave_bestLevel', String(state.bestLevel));
+      }
+    }catch(e){ /* ignore */ }
+  }
+  function getDailyBest(dateStr){
+    try{ return parseInt(localStorage.getItem('arrowWeave_daily_'+dateStr)) || 0; }
+    catch(e){ return 0; }
+  }
+  function saveDailyBestIfBeaten(dateStr, score){
+    try{
+      const cur = getDailyBest(dateStr);
+      if(score > cur) localStorage.setItem('arrowWeave_daily_'+dateStr, String(score));
+    }catch(e){ /* ignore */ }
+  }
+
+  // ---------- canvas setup ----------
+  const canvas = document.getElementById('board');
+  const ctx = canvas.getContext('2d');
+  state.canvas = canvas; state.ctx = ctx;
+
+  function layoutCanvas(){
+    const dpr = window.devicePixelRatio || 1;
+    const w = state.cols * state.cellSize;
+    const h = state.rows * state.cellSize;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+
+  function cellCenter(r,c){
+    return { x: c*state.cellSize + state.cellSize/2, y: r*state.cellSize + state.cellSize/2 };
+  }
+
+  // ---------- exit-lane blocking model ----------
+  // Arrows never touch or overlap at rest (see the generator below). What
+  // makes this a puzzle instead: to leave, an arrow travels straight out
+  // past its own tip until it's off the board. If another still-active
+  // arrow's body sits anywhere along that exit lane, the tap fails - shake
+  // red, lose a heart - because the way out is physically blocked.
+  // ---------- sound (synthesized, no external audio files needed) ----------
+  let audioCtx = null;
+  let muted = false;
+  let masterGain = null;
+  let ambientStarted = false;
+
+  function ensureAudio(){
+    if(!audioCtx){
+      try{
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        masterGain = audioCtx.createGain();
+        masterGain.gain.value = muted ? 0 : 1;
+        masterGain.connect(audioCtx.destination);
+      }
+      catch(e){ audioCtx = null; }
+    }
+    if(audioCtx && audioCtx.state==='suspended') audioCtx.resume();
+    startAmbientPad();
+  }
+
+  // A very soft, slowly-modulated drone - two detuned tones through a
+  // filter whose cutoff wanders via a slow LFO, so it never quite repeats.
+  // Runs continuously at low volume once audio unlocks; the mute button
+  // (via masterGain) silences this along with every other sound.
+  function startAmbientPad(){
+    if(ambientStarted || !audioCtx || !masterGain) return;
+    ambientStarted = true;
+    const padGain = audioCtx.createGain();
+    padGain.gain.value = 0.03;
+    padGain.connect(masterGain);
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 700;
+    filter.connect(padGain);
+    const osc1 = audioCtx.createOscillator(); osc1.type='sine'; osc1.frequency.value=110;
+    const osc2 = audioCtx.createOscillator(); osc2.type='sine'; osc2.frequency.value=164.81;
+    osc1.connect(filter); osc2.connect(filter);
+    const lfo = audioCtx.createOscillator(); lfo.type='sine'; lfo.frequency.value=0.045;
+    const lfoGain = audioCtx.createGain(); lfoGain.gain.value=180;
+    lfo.connect(lfoGain); lfoGain.connect(filter.frequency);
+    osc1.start(); osc2.start(); lfo.start();
+  }
+
+  function beep(freq, duration, type, peakGain, sweepTo){
+    if(muted || !audioCtx) return;
+    const t0 = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t0);
+    if(sweepTo) osc.frequency.exponentialRampToValueAtTime(Math.max(1,sweepTo), t0+duration);
+    gain.gain.setValueAtTime(0.0001, t0);
+    gain.gain.linearRampToValueAtTime(peakGain, t0+0.012);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0+duration);
+    osc.connect(gain); gain.connect(masterGain || audioCtx.destination);
+    osc.start(t0); osc.stop(t0+duration+0.03);
+  }
+
+  function playSlideSound(){ ensureAudio(); beep(300, 0.22, 'sine', 0.14, 950); }
+  function playBlockSound(){
+    ensureAudio();
+    beep(170, 0.15, 'square', 0.16, 90);
+    setTimeout(()=>beep(130, 0.12, 'square', 0.12, 70), 70);
+  }
+  function playWinSound(){
+    ensureAudio();
+    [523,659,784].forEach((f,i)=> setTimeout(()=>beep(f, 0.18, 'triangle', 0.16), i*100));
+  }
+  function playLoseSound(){
+    ensureAudio();
+    [380,300,220].forEach((f,i)=> setTimeout(()=>beep(f, 0.24, 'sawtooth', 0.12), i*130));
+  }
+  function playBurnSound(){
+    ensureAudio();
+    beep(500, 0.1, 'sawtooth', 0.14, 1400);
+    setTimeout(()=>beep(300, 0.14, 'sawtooth', 0.12, 700), 50);
+  }
+
+  function activeArrows(){
+    return state.arrows.filter(a => !a.removing && !a.removed);
+  }
+
+  function getExitLane(cells, cols, rows){
+    const last = cells[cells.length-1];
+    const prev = cells.length>1 ? cells[cells.length-2] : null;
+    if(!prev) return [];
+    const dr = last.r - prev.r, dc = last.c - prev.c;
+    const lane = [];
+    let r = last.r + dr, c = last.c + dc;
+    let guard = 0, limit = rows + cols + 2;
+    while(r>=0 && r<rows && c>=0 && c<cols && guard<limit){
+      lane.push({r,c});
+      r += dr; c += dc; guard++;
+    }
+    return lane;
+  }
+
+  // Cells immediately touching `cells` on one specific side (U/D/L/R),
+  // one layer only - used by frozen arrows (which side must clear) and
+  // fire arrows (which neighbours burn).
+  function getSideTouchCells(cells, side){
+    const d = VEC[side];
+    return cells.map(c => ({ r: c.r + d.dr, c: c.c + d.dc }));
+  }
+  function getAllTouchCells(cells){
+    const out = [];
+    for(const c of cells){
+      out.push({r:c.r-1,c:c.c}, {r:c.r+1,c:c.c}, {r:c.r,c:c.c-1}, {r:c.r,c:c.c+1});
+    }
+    return out;
+  }
+  function arrowsTouching(touchCells, others, excludeId){
+    const set = new Set(touchCells.map(c => keyOf(c.r,c.c)));
+    return others.filter(o => o.id !== excludeId && o.cells.some(c => set.has(keyOf(c.r,c.c))));
+  }
+
+  // Fire arrows burn exactly one layer of neighbours around them when
+  // successfully cleared - not those neighbours' own neighbours, so it
+  // never cascades across the whole board.
+  function burnNeighbors(fireArrow){
+    const touching = arrowsTouching(getAllTouchCells(fireArrow.cells), activeArrows(), fireArrow.id);
+    touching.forEach(v => {
+      v.burning = true;
+      v.removing = true;
+      v.removeStart = performance.now();
+      state.score += 5;
+    });
+    if(touching.length > 0) playBurnSound();
+    return touching.length;
+  }
+
+  function isArrowFree(arrow, others, cols, rows){
+    cols = cols || state.cols; rows = rows || state.rows;
+    if(arrow.lockedBy != null){
+      const key = others.find(o => o.id === arrow.lockedBy);
+      if(key) return false; // still locked - key hasn't been cleared yet
+    }
+    if(arrow.frozenSide){
+      const touching = arrowsTouching(getSideTouchCells(arrow.cells, arrow.frozenSide), others, arrow.id);
+      if(touching.length > 0) return false; // still frozen on that side
+    }
+    const lane = getExitLane(arrow.cells, cols, rows);
+    if(lane.length === 0) return true;
+    const laneSet = new Set(lane.map(c => keyOf(c.r,c.c)));
+    for(const other of others){
+      if(other.id === arrow.id) continue;
+      if(other.cells.some(c => laneSet.has(keyOf(c.r,c.c)))) return false;
+    }
+    return true;
+  }
+
+  // ---------- procedural generator ----------
+  // Paths never share a cell with each other (stroke width is well under
+  // a cell's width, so neighbours still read as separate lines without an
+  // artificial buffer). Solvability isn't verified after the fact and
+  // retried - it's guaranteed BY CONSTRUCTION: each new arrow's own exit
+  // lane is required to be clear of every arrow already placed before it.
+  // That means, working backward, the most-recently-placed arrow is always
+  // free first, and so on down to the first - a valid clearing order
+  // (highest id to lowest) always exists no matter how many arrows there
+  // are, so it scales cleanly instead of hoping a random layout happens
+  // to be solvable.
+  function tryGeneratePath(cols, rows, forbidden, ranges){
+    ranges = ranges || { segMin:2, segMax:3, lenMin:1, lenMax:2 };
+    for(let attempt=0; attempt<80; attempt++){
+      const startR = randInt(0, rows-1), startC = randInt(0, cols-1);
+      if(forbidden.has(keyOf(startR,startC))) continue;
+      let path = [{r:startR,c:startC}];
+      let visited = new Set([keyOf(startR,startC)]);
+      const segments = randInt(ranges.segMin, ranges.segMax);
+      let curDir = null;
+
+      for(let s=0; s<segments; s++){
+        const dirs = shuffle(['U','D','L','R'].filter(d => d !== OPP[curDir]));
+        let placed = false;
+        for(const d of dirs){
+          const len = randInt(ranges.lenMin, ranges.lenMax);
+          const testPath = path.slice();
+          const testVisited = new Set(visited);
+          let valid = true;
+          for(let k=0;k<len;k++){
+            const last = testPath[testPath.length-1];
+            const nr = last.r + VEC[d].dr, nc = last.c + VEC[d].dc;
+            if(nr<0||nr>=rows||nc<0||nc>=cols){ valid=false; break; }
+            const key = keyOf(nr,nc);
+            if(testVisited.has(key)){ valid=false; break; }
+            if(forbidden.has(key)){ valid=false; break; }
+            testPath.push({r:nr,c:nc});
+            testVisited.add(key);
+          }
+          if(valid && testPath.length > path.length){
+            path = testPath; visited = testVisited; curDir = d; placed = true;
+            break;
+          }
+        }
+        if(!placed) break;
+      }
+      if(path.length >= 2){
+        const lane = getExitLane(path, cols, rows);
+        const laneBlocked = lane.some(c => forbidden.has(keyOf(c.r,c.c)));
+        if(!laneBlocked) return path;
+        // this path's own exit would already be crossed by something
+        // placed earlier - try a different start/direction instead
+      }
+    }
+    return null;
+  }
+
+  // Locks are safe by the same logic: a locked arrow's key must be some
+  // arrow placed AFTER it (higher id), since higher ids are always
+  // cleared first in the guaranteed order above.
+  function assignLocks(arrows, lockCount){
+    if(lockCount<=0 || arrows.length<3) return;
+    const lockable = shuffle(arrows.slice(0, arrows.length-1)); // last id has no valid key
+    let assigned = 0;
+    for(const locked of lockable){
+      if(assigned>=lockCount) break;
+      const laterOnes = arrows.filter(a => a.id > locked.id);
+      if(laterOnes.length===0) continue;
+      const key = laterOnes[randInt(0, laterOnes.length-1)];
+      locked.lockedBy = key.id;
+      assigned++;
+    }
+  }
+
+  // Frozen arrows add an extra precondition on top of the normal exit-lane
+  // check: one specific side must be completely clear of neighbours first.
+  // This can never make a level unsolvable - it only adds an additional
+  // thing that must happen before an arrow that was already going to be
+  // removable eventually becomes removable, and nothing else depends on a
+  // frozen arrow being cleared, so there's no risk of a deadlock.
+  function assignFreezes(arrows, freezeCount){
+    if(freezeCount<=0 || arrows.length<4) return;
+    const candidates = shuffle(arrows.filter(a => a.lockedBy==null && !a.fire));
+    let assigned = 0;
+    for(const cand of candidates){
+      if(assigned>=freezeCount) break;
+      const sides = shuffle(['U','D','L','R']);
+      for(const side of sides){
+        const touching = arrowsTouching(getSideTouchCells(cand.cells, side), arrows, cand.id);
+        // Safe by the same logic as locks: only freeze against neighbours
+        // that are guaranteed to clear first anyway (higher id = cleared
+        // earlier in the natural order), so this can never deadlock
+        // against an arrow that itself needs the frozen one gone first.
+        const allHigherId = touching.length>=1 && touching.every(t => t.id > cand.id);
+        if(allHigherId && touching.length <= 4){
+          cand.frozenSide = side;
+          assigned++;
+          break;
+        }
+      }
+    }
+  }
+
+  // Fire arrows are always safe too: burning is an extra way to clear
+  // neighbours, on top of (never instead of) the normal rules, so it can
+  // only make a board easier to finish, never harder or unsolvable.
+  function assignFire(arrows, fireCount){
+    if(fireCount<=0 || arrows.length<4) return;
+    const candidates = shuffle(arrows.filter(a => a.lockedBy==null && a.frozenSide==null));
+    let assigned = 0;
+    for(const cand of candidates){
+      if(assigned>=fireCount) break;
+      cand.fire = true;
+      assigned++;
+    }
+  }
+
+  function generateLevel(cols, rows, count, ranges){
+    let best = null;
+    for(let attempt=0; attempt<8; attempt++){
+      const forbidden = new Set();
+      const arrows = [];
+      for(let i=0;i<count;i++){
+        const path = tryGeneratePath(cols, rows, forbidden, ranges);
+        if(path){
+          arrows.push({ id: i+1, cells: path, lockedBy: null, frozenSide: null, fire: false });
+          for(const c of path) forbidden.add(keyOf(c.r,c.c));
+        }
+      }
+      if(!best || arrows.length > best.length) best = arrows;
+      if(arrows.length >= count) break; // hit the target, no need to retry
+    }
+    assignLocks(best, (ranges && ranges.lockCount) || 0);
+    assignFreezes(best, (ranges && ranges.freezeCount) || 0);
+    assignFire(best, (ranges && ranges.fireCount) || 0);
+    return best || [];
+  }
+
+
+  // ---------- level loading ----------
+  function computeCellSize(cols, rows){
+    const size = Math.min(BOARD_MAX_W/cols, BOARD_MAX_H/rows);
+    return Math.max(16, Math.min(46, Math.floor(size)));
+  }
+
+  function loadArrows(rawArrows, cols, rows){
+    state.cellSize = computeCellSize(cols, rows);
+    state.cols = cols; state.rows = rows;
+    layoutCanvas();
+    state.arrows = rawArrows.map((a, idx) => ({
+      id: a.id != null ? a.id : idx+1,
+      cells: a.cells.map(c => ({r:c.r, c:c.c})),
+      lockedBy: a.lockedBy != null ? a.lockedBy : null,
+      frozenSide: a.frozenSide || null,
+      fire: !!a.fire,
+      burning: false,
+      color: PALETTE[idx % PALETTE.length],
+      removing: false, removed: false,
+      removeStart: 0, shakeUntil: 0
+    }));
+    state.nextId = state.arrows.length + 1;
+  }
+
+  // ---------- attract-mode demo (landing screen) ----------
+  // A small, deliberately compact puzzle - always includes one fire and
+  // one frozen arrow so the how-to-play list has a live example on screen
+  // - that auto-solves itself on a loop to show off real gameplay before
+  // anyone taps Play.
+  const ATTRACT_TAP_INTERVAL = 900; // ms between auto-taps - tuned to feel snappy, not rushed
+  const ATTRACT_RESTART_DELAY = 1400; // ms pause after a full clear before looping
+
+  function generateAttractDemo(){
+    rand = Math.random;
+    const ranges = { segMin:2, segMax:3, lenMin:1, lenMax:2, lockCount:0, freezeCount:1, fireCount:1 };
+    const arrows = generateLevel(7, 9, 7, ranges);
+    loadArrows(arrows, 7, 9);
+    state.attractLastTap = performance.now() + 500; // brief pause before the first move
+    state.attractResetAt = 0;
+  }
+
+  function stepAttractMode(now){
+    if(state.attractResetAt){
+      if(now >= state.attractResetAt) generateAttractDemo();
+      return;
+    }
+    const active = activeArrows();
+    if(active.length === 0){
+      if(state.arrows.length && state.arrows.every(a => a.removed)){
+        state.attractResetAt = now + ATTRACT_RESTART_DELAY;
+      }
+      return;
+    }
+    if(now - state.attractLastTap < ATTRACT_TAP_INTERVAL) return;
+    const free = active.filter(a => isArrowFree(a, active));
+    if(free.length === 0) return; // everything left is frozen/locked - wait for it to open up
+    const pick = free[randInt(0, free.length-1)];
+    pick.removing = true;
+    pick.removeStart = now;
+    if(pick.fire) burnNeighbors(pick);
+    state.attractLastTap = now;
+  }
+
+  function startLevel(level){
+    let cfg = getLevelConfig(level);
+
+    // Daily challenge boards should always feel substantial - never
+    // fewer than 50 arrows, even on an early daily level. Level 13 is
+    // the first level whose normal formula already reaches 50+ arrows,
+    // so daily mode borrows that level's board shape (grid size, turns,
+    // locks) while still tracking the real level number for the timer,
+    // hints, and display.
+    if(state.isDaily && cfg.count < 50){
+      cfg = getLevelConfig(Math.max(level, 13));
+    }
+
+    state.level = level;
+    state.lives = cfg.lives; state.maxLives = cfg.lives;
+    state.timeLeft = getLevelTime(level);
+    state.hintUsedThisLevel = false;
+    state.hintId = null; state.hintUntil = 0;
+    state.combo = 0;
+    state.undoUsedThisLevel = false;
+    state.lastClear = null;
+    state._won = false; state._lost = false;
+
+    // Seed the RNG so level 1 is always the exact same board (a fixed
+    // "tutorial" layout, however many times it's retried) - daily
+    // challenges use the date's seed; everything else stays random.
+    if(level === 1){
+      rand = mulberry32(TUTORIAL_SEED);
+    } else if(state.isDaily){
+      rand = mulberry32(hashStr('daily-' + state.dailySeedDate + '-L' + level));
+    } else {
+      rand = Math.random;
+    }
+    const arrows = generateLevel(cfg.cols, cfg.rows, cfg.count, cfg);
+    rand = Math.random;
+
+    loadArrows(arrows, cfg.cols, cfg.rows);
+    els.diffPill.textContent = (state.isDaily ? 'Daily · ' : '') + 'Level ' + level;
+    hideOverlays();
+
+    // First-time onboarding: show the rules banner and an animated hand
+    // pointing at a real tappable arrow, only on level 1.
+    if(level === 1){
+      state.tutorialActive = true;
+      els.tutorialBanner.classList.remove('hidden');
+      const active = activeArrows();
+      const free = active.find(a => isArrowFree(a, active));
+      state.tutorialTarget = free ? { r: free.cells[0].r, c: free.cells[0].c } : null;
+    } else {
+      state.tutorialActive = false;
+      els.tutorialBanner.classList.add('hidden');
+      state.tutorialTarget = null;
+    }
+    renderHUD();
+  }
+
+  function hideOverlays(){
+    els.overlayLose.classList.add('hidden');
+    els.overlayWin.classList.add('hidden');
+  }
+
+  // Star rating for a level clear: 3 stars only if not a single heart was
+  // lost, scaling down one star per heart lost from there.
+  function starsForClear(){
+    const lost = state.maxLives - state.lives;
+    return Math.max(1, 3 - lost);
+  }
+
+  function renderStars(earned){
+    els.starsRow.innerHTML = '';
+    for(let i=0;i<3;i++){
+      const filled = i < earned;
+      els.starsRow.innerHTML += `<svg width="34" height="34" viewBox="0 0 24 24" fill="${filled?'#e8b54d':'none'}" stroke="#e8b54d" stroke-width="1.6"><path d="M12 2.5l2.9 6.1 6.6.7-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.2 1.3-6.6-4.9-4.6 6.6-.7z"/></svg>`;
+    }
+  }
+
+  function renderHUD(){
+    els.scoreVal.textContent = state.score;
+    els.heartsWrap.innerHTML = '';
+    for(let i=0;i<state.maxLives;i++){
+      const full = i < state.lives;
+      els.heartsWrap.innerHTML += `<svg class="heart" viewBox="0 0 24 24" fill="${full?'#e8735a':'none'}" stroke="#e8735a" stroke-width="2"><path d="M12 21s-7.5-4.9-10-9.2C.4 8.6 2 5 5.6 5c2 0 3.4 1.1 4.4 2.6C11 6.1 12.4 5 14.4 5 18 5 19.6 8.6 18 11.8 15.5 16.1 12 21 12 21z"/></svg>`;
+    }
+    els.timerVal.textContent = Math.max(0, Math.ceil(state.timeLeft));
+    els.timerPill.classList.toggle('danger-text', state.timeLeft <= 10);
+    els.hintCount.textContent = state.hintBank;
+    const hintDisabled = state.hintBank<=0 || state.hintUsedThisLevel;
+    els.btnHint.disabled = hintDisabled;
+    els.btnHint.style.opacity = hintDisabled ? 0.5 : 1;
+    els.btnHint.title = state.hintUsedThisLevel ? 'Only 1 hint per level' : '';
+
+    const undoDisabled = state.undoUsedThisLevel || !state.lastClear;
+    els.btnUndo.disabled = undoDisabled;
+    els.btnUndo.style.opacity = undoDisabled ? 0.5 : 1;
+
+    els.bestVal.textContent = Math.max(state.bestScore, state.score);
+    if(state.combo >= 2){
+      els.comboPill.classList.remove('hidden');
+      els.comboVal.textContent = state.combo;
+    } else {
+      els.comboPill.classList.add('hidden');
+    }
+  }
+
+  function useHint(){
+    if(state.hintBank<=0 || state.hintUsedThisLevel) return;
+    const active = activeArrows();
+    const candidates = active.filter(a => isArrowFree(a, active));
+    if(candidates.length===0) return;
+    const pick = candidates[randInt(0, candidates.length-1)];
+    state.hintId = pick.id;
+    state.hintUntil = performance.now() + 1800;
+    state.hintBank -= 1;
+    state.hintUsedThisLevel = true;
+    renderHUD();
+  }
+
+  function useUndo(){
+    if(state.undoUsedThisLevel || !state.lastClear) return;
+    const rec = state.lastClear;
+    const arrow = state.arrows.find(a => a.id === rec.id);
+    if(!arrow) return;
+    arrow.removing = false; arrow.removed = false; arrow.shakeUntil = 0;
+    state.score -= rec.scoreAwarded;
+    state.combo = rec.comboBefore;
+    state.undoUsedThisLevel = true;
+    state.lastClear = null;
+    renderHUD();
+  }
+
+  function triggerLose(reason){
+    if(state._lost || state._won) return;
+    state._lost = true;
+    saveBestIfBeaten();
+    if(state.isDaily) saveDailyBestIfBeaten(state.dailySeedDate, state.score);
+    els.loseTitle.textContent = reason==='time' ? 'Out of time' : 'Out of hearts';
+    els.loseText.textContent = reason==='time'
+      ? "The clock ran out before you cleared the board."
+      : "That path was blocked one too many times.";
+    els.loseBest.textContent = state.isDaily
+      ? `Today's best: ${getDailyBest(state.dailySeedDate)} · All-time best: ${state.bestScore}`
+      : `All-time best: ${state.bestScore} (reached level ${state.bestLevel})`;
+    els.overlayLose.classList.remove('hidden');
+    playLoseSound();
+  }
+
+  // ---------- path-following exit animation helpers ----------
+  // A cleared arrow doesn't fly off in a straight line - it slides out
+  // through its own bent path (like a rope pulled through a tube), then
+  // continues straight past the board edge until it's fully offscreen.
+  function buildPathMeta(pts, extraLen){
+    const last = pts[pts.length-1];
+    const prev = pts.length>1 ? pts[pts.length-2] : {x:last.x-1,y:last.y};
+    const dir = norm(last.x-prev.x, last.y-prev.y);
+    const extPoint = { x:last.x+dir.x*extraLen, y:last.y+dir.y*extraLen };
+    const points = pts.concat([extPoint]);
+    const cum = [0];
+    for(let i=1;i<points.length;i++){
+      cum.push(cum[i-1] + Math.hypot(points[i].x-points[i-1].x, points[i].y-points[i-1].y));
+    }
+    return { points, cum, total: cum[cum.length-1], pathLen: cum[pts.length-1] };
+  }
+
+  function segmentIndexAt(meta, d){
+    const { points, cum } = meta;
+    d = Math.max(0, Math.min(meta.total, d));
+    for(let i=1;i<points.length;i++){
+      if(d <= cum[i] || i===points.length-1) return i;
+    }
+    return points.length-1;
+  }
+
+  function pointAtDist(meta, d){
+    const i = segmentIndexAt(meta, d);
+    const { points, cum } = meta;
+    d = Math.max(0, Math.min(meta.total, d));
+    const segLen = (cum[i]-cum[i-1]) || 1;
+    const t = (d-cum[i-1])/segLen;
+    return {
+      x: points[i-1].x + (points[i].x-points[i-1].x)*t,
+      y: points[i-1].y + (points[i].y-points[i-1].y)*t
+    };
+  }
+
+  function dirAtDist(meta, d){
+    const i = segmentIndexAt(meta, d);
+    const { points } = meta;
+    return norm(points[i].x-points[i-1].x, points[i].y-points[i-1].y);
+  }
+
+  function windowPoints(meta, lo, hi){
+    lo = Math.max(0, Math.min(meta.total, lo));
+    hi = Math.max(0, Math.min(meta.total, hi));
+    if(hi <= lo) return [pointAtDist(meta, lo)];
+    const out = [pointAtDist(meta, lo)];
+    const { points, cum } = meta;
+    for(let i=0;i<points.length;i++){
+      if(cum[i] > lo && cum[i] < hi) out.push(points[i]);
+    }
+    out.push(pointAtDist(meta, hi));
+    return out;
+  }
+
+  const EXIT_DURATION = 480;
+
+  // ---------- drawing ----------
+  function isLocked(a){
+    if(a.lockedBy == null) return false;
+    return state.arrows.some(o => o.id === a.lockedBy && !o.removed && !o.removing);
+  }
+
+  function isFrozen(a){
+    if(!a.frozenSide) return false;
+    const touching = arrowsTouching(getSideTouchCells(a.cells, a.frozenSide), activeArrows(), a.id);
+    return touching.length > 0;
+  }
+
+  function lerpColor(c1, c2, t){
+    const p1 = parseInt(c1.slice(1),16), p2 = parseInt(c2.slice(1),16);
+    const r1=(p1>>16)&255, g1=(p1>>8)&255, b1=p1&255;
+    const r2=(p2>>16)&255, g2=(p2>>8)&255, b2=p2&255;
+    const r=Math.round(r1+(r2-r1)*t), g=Math.round(g1+(g2-g1)*t), b=Math.round(b1+(b2-b1)*t);
+    return 'rgb('+r+','+g+','+b+')';
+  }
+
+  function drawFrostBadge(pt, size, spin){
+    ctx.save();
+    ctx.translate(pt.x, pt.y);
+    ctx.rotate(spin || 0);
+    ctx.shadowColor = '#bfe8ff';
+    ctx.shadowBlur = size*0.5;
+    ctx.strokeStyle = '#eaf9ff';
+    ctx.lineWidth = size*0.14;
+    ctx.lineCap = 'round';
+    for(let i=0;i<3;i++){
+      const ang = (Math.PI/3)*i;
+      ctx.save();
+      ctx.rotate(ang);
+      ctx.beginPath();
+      ctx.moveTo(0,-size*0.4); ctx.lineTo(0,size*0.4);
+      ctx.moveTo(-size*0.16,-size*0.26); ctx.lineTo(0,-size*0.4);
+      ctx.moveTo(size*0.16,-size*0.26); ctx.lineTo(0,-size*0.4);
+      ctx.moveTo(-size*0.16,size*0.26); ctx.lineTo(0,size*0.4);
+      ctx.moveTo(size*0.16,size*0.26); ctx.lineTo(0,size*0.4);
+      ctx.stroke();
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+
+  function drawFlameBadge(pt, size, flicker){
+    ctx.save();
+    ctx.translate(pt.x, pt.y-size*0.1);
+    const scale = 1 + flicker*0.18;
+    ctx.scale(scale, scale);
+    ctx.shadowColor = '#ff8a3d';
+    ctx.shadowBlur = size*0.6;
+    ctx.fillStyle = lerpColor('#e8531c', '#ffd166', flicker);
+    ctx.beginPath();
+    ctx.moveTo(0, -size*0.44);
+    ctx.bezierCurveTo(size*0.34, -size*0.06, size*0.24, size*0.34, 0, size*0.44);
+    ctx.bezierCurveTo(-size*0.24, size*0.34, -size*0.34, -size*0.06, 0, -size*0.44);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#fff2c9';
+    ctx.beginPath();
+    ctx.arc(0, size*0.14, size*0.13, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawColorblindBadge(pt, id, color){
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(pt.x, pt.y, state.cellSize*0.22, 0, Math.PI*2);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.fillStyle = '#0e0f16';
+    ctx.font = 'bold ' + Math.max(9, Math.round(state.cellSize*0.24)) + 'px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(String(id), pt.x, pt.y+1);
+    ctx.restore();
+  }
+
+  function drawLockBadge(pt, size){
+    ctx.save();
+    ctx.translate(pt.x, pt.y);
+    ctx.strokeStyle = '#c9cddc';
+    ctx.fillStyle = '#c9cddc';
+    ctx.lineWidth = size*0.16;
+    ctx.beginPath();
+    ctx.arc(0, -size*0.12, size*0.26, Math.PI, 0, false);
+    ctx.stroke();
+    ctx.fillRect(-size*0.32, -size*0.05, size*0.64, size*0.46);
+    ctx.restore();
+  }
+
+  const DASH_PATTERNS = [[], [7,5], [2,5]];
+
+  function drawArrowPath(a, opts){
+    opts = opts || {};
+    const originalPts = a.cells.map(c => cellCenter(c.r,c.c));
+    let drawPts = originalPts;
+    let headPoint = null, headDir = null;
+    const locked = !a.removing && isLocked(a);
+    const frozen = !a.removing && isFrozen(a);
+
+    if(a.removing){
+      const boardDiag = Math.hypot(state.cols*state.cellSize, state.rows*state.cellSize);
+      const extraLen = boardDiag*1.3;
+      const meta = buildPathMeta(originalPts, extraLen);
+      const t = Math.min(1, (performance.now()-a.removeStart)/EXIT_DURATION);
+      const headPos = meta.pathLen + t*extraLen;
+      const tailPos = t*extraLen;
+      drawPts = windowPoints(meta, tailPos, headPos);
+      headPoint = pointAtDist(meta, headPos);
+      headDir = dirAtDist(meta, headPos);
+      if(drawPts.length < 2) return;
+    }
+
+    let shakeX = 0;
+    if(a.shakeUntil && performance.now() < a.shakeUntil){
+      shakeX = Math.sin(performance.now()/25) * 4;
+    }
+
+    const baseColor = a.fire ? '#ff9d5c' : a.color;
+    const fireFlicker = (Math.sin(performance.now()/100 + a.id*1.7) + 1) / 2;
+    const fireColor = lerpColor('#e8531c', '#ffd166', fireFlicker);
+    const strokeColor = locked ? '#5a5f72'
+      : a.burning ? '#ff3d1f'
+      : frozen ? '#eaf9ff'
+      : a.fire ? fireColor
+      : (opts.blocked ? '#e8735a' : baseColor);
+
+    ctx.save();
+    ctx.translate(shakeX, 0);
+
+    // frozen arrows look encased in ice: a soft wide glow behind the line
+    if(frozen){
+      ctx.save();
+      ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+      ctx.shadowColor = '#8fd6ff';
+      ctx.shadowBlur = state.cellSize*0.35;
+      ctx.strokeStyle = 'rgba(191,232,255,0.55)';
+      ctx.lineWidth = state.cellSize*0.5;
+      ctx.beginPath();
+      drawPts.forEach((p,i) => i===0 ? ctx.moveTo(p.x,p.y) : ctx.lineTo(p.x,p.y));
+      ctx.stroke();
+      ctx.restore();
+    }
+    // fire arrows glow like embers even before they're tapped
+    if(a.fire && !a.burning){
+      ctx.save();
+      ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+      ctx.shadowColor = '#ff8a3d';
+      ctx.shadowBlur = state.cellSize*(0.22 + fireFlicker*0.16);
+      ctx.strokeStyle = strokeColor;
+      ctx.lineWidth = state.cellSize*0.24;
+      ctx.beginPath();
+      drawPts.forEach((p,i) => i===0 ? ctx.moveTo(p.x,p.y) : ctx.lineTo(p.x,p.y));
+      ctx.stroke();
+      ctx.restore();
+    }
+    if(a.burning){
+      ctx.save();
+      ctx.shadowColor = '#ff5a1f';
+      ctx.shadowBlur = state.cellSize*0.5;
+      ctx.strokeStyle = strokeColor;
+      ctx.lineJoin='round'; ctx.lineCap='round';
+      ctx.lineWidth = state.cellSize*0.24;
+      ctx.beginPath();
+      drawPts.forEach((p,i) => i===0 ? ctx.moveTo(p.x,p.y) : ctx.lineTo(p.x,p.y));
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // hint glow: a soft pulsing halo behind the suggested arrow
+    if(state.hintId === a.id && performance.now() < state.hintUntil){
+      const pulse = (Math.sin(performance.now()/180) + 1) / 2; // 0..1
+      ctx.save();
+      ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+      ctx.shadowColor = '#5fd0f3';
+      ctx.shadowBlur = 14 + pulse*10;
+      ctx.strokeStyle = 'rgba(95,208,243,' + (0.35 + pulse*0.35) + ')';
+      ctx.lineWidth = state.cellSize*0.24 + 8 + pulse*4;
+      ctx.beginPath();
+      drawPts.forEach((p,i) => i===0 ? ctx.moveTo(p.x,p.y) : ctx.lineTo(p.x,p.y));
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = state.cellSize*0.24;
+    if(state.colorblind) ctx.setLineDash(DASH_PATTERNS[a.id % DASH_PATTERNS.length]);
+    ctx.beginPath();
+    drawPts.forEach((p,i) => i===0 ? ctx.moveTo(p.x,p.y) : ctx.lineTo(p.x,p.y));
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // pointed arrowhead: an open chevron in the same stroke as the body,
+    // riding at the leading point of the path (or the moving exit point
+    // while the arrow is sliding out)
+    const last = a.removing ? headPoint : drawPts[drawPts.length-1];
+    const dir = a.removing ? headDir : (() => {
+      const prev = drawPts.length>1 ? drawPts[drawPts.length-2] : {x:last.x-1,y:last.y};
+      return norm(last.x-prev.x, last.y-prev.y);
+    })();
+    const nx = -dir.y, ny = dir.x;
+    const tipExtend = state.cellSize*0.30;
+    const wingBack = state.cellSize*0.30;
+    const wingOut = state.cellSize*0.20;
+    const tipX = last.x + dir.x*tipExtend, tipY = last.y + dir.y*tipExtend;
+    const wingBaseX = tipX - dir.x*wingBack, wingBaseY = tipY - dir.y*wingBack;
+    const wing1X = wingBaseX + nx*wingOut, wing1Y = wingBaseY + ny*wingOut;
+    const wing2X = wingBaseX - nx*wingOut, wing2Y = wingBaseY - ny*wingOut;
+
+    ctx.beginPath();
+    ctx.moveTo(tipX, tipY);
+    ctx.lineTo(wing1X, wing1Y);
+    ctx.moveTo(tipX, tipY);
+    ctx.lineTo(wing2X, wing2Y);
+    ctx.lineWidth = state.cellSize*0.24;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = strokeColor;
+    ctx.stroke();
+
+    if(!a.removing){
+      if(state.colorblind) drawColorblindBadge(originalPts[0], a.id, strokeColor);
+      if(locked) drawLockBadge(originalPts[0], state.cellSize*0.55);
+      if(frozen) drawFrostBadge(originalPts[0], state.cellSize*0.65, performance.now()/2000);
+      if(a.fire && !locked && !frozen) drawFlameBadge(originalPts[0], state.cellSize*0.6, fireFlicker);
+    }
+
+    ctx.restore();
+  }
+
+  function norm(x,y){ const m=Math.hypot(x,y)||1; return {x:x/m,y:y/m}; }
+
+  function drawEditingPath(){
+    if(state.editingPath.length===0) return;
+    const pts = state.editingPath.map(c => cellCenter(c.r,c.c));
+    ctx.save();
+    ctx.lineJoin='round'; ctx.lineCap='round';
+    ctx.strokeStyle = '#5fd0f3';
+    ctx.lineWidth = state.cellSize*0.28;
+    ctx.setLineDash([8,6]);
+    ctx.beginPath();
+    pts.forEach((p,i)=> i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
+    ctx.stroke();
+    ctx.setLineDash([]);
+    pts.forEach((p,i)=>{
+      ctx.beginPath();
+      ctx.arc(p.x,p.y, i===0?7:5, 0, Math.PI*2);
+      ctx.fillStyle = i===0 ? '#5fd0f3' : '#e8f6ff';
+      ctx.fill();
+    });
+    ctx.restore();
+  }
+
+  // A pulsing ring plus a tapping hand emoji over a real, currently
+  // tappable arrow - shown only on level 1 until the player's first tap,
+  // so brand-new players immediately understand "tap an arrow to clear it".
+  function drawTutorialHand(now){
+    if(!state.tutorialActive || !state.tutorialTarget || state.mode!=='play') return;
+    const p = cellCenter(state.tutorialTarget.r, state.tutorialTarget.c);
+    const cycle = (now % 1400) / 1400; // 0..1 repeating
+    const ringR = state.cellSize * (0.5 + cycle*0.9);
+    const ringAlpha = Math.max(0, 0.55 * (1-cycle));
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, ringR, 0, Math.PI*2);
+    ctx.strokeStyle = `rgba(95,208,243,${ringAlpha})`;
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.restore();
+
+    const bob = Math.sin(now/220) * state.cellSize*0.12;
+    ctx.save();
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = '#ffffff';
+    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+    ctx.shadowBlur = 4;
+    ctx.font = Math.round(state.cellSize*1.3) + 'px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('👆', p.x + state.cellSize*0.35, p.y + state.cellSize*0.45 + bob);
+    ctx.restore();
+  }
+
+  function render(){
+    const now = performance.now();
+    const dt = state.lastFrameTime ? (now - state.lastFrameTime)/1000 : 0;
+    state.lastFrameTime = now;
+
+    if(state.attractMode){
+      stepAttractMode(now);
+    }
+
+    if(!state.attractMode && state.mode==='play' && !state._won && !state._lost && state.timeLeft>0){
+      state.timeLeft -= dt;
+      if(state.timeLeft <= 0){
+        state.timeLeft = 0;
+        triggerLose('time');
+      }
+      renderHUD();
+    }
+
+    const w = state.cols*state.cellSize, h = state.rows*state.cellSize;
+    ctx.clearRect(0,0,w,h);
+
+    // subtle dot grid
+    ctx.fillStyle = 'rgba(255,255,255,0.06)';
+    for(let r=0;r<state.rows;r++){
+      for(let c=0;c<state.cols;c++){
+        const p = cellCenter(r,c);
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,1.6,0,Math.PI*2);
+        ctx.fill();
+      }
+    }
+
+    for(const a of state.arrows){
+      if(a.removed) continue;
+      drawArrowPath(a);
+    }
+    drawEditingPath();
+    drawTutorialHand(now);
+
+    // clean up finished removal animations
+    state.arrows.forEach(a=>{
+      if(a.removing && now-a.removeStart>EXIT_DURATION) a.removed = true;
+    });
+    if(state.arrows.length && state.arrows.every(a=>a.removed) && !state.attractMode && state.mode==='play' && !state._won && !state._lost){
+      state._won = true;
+      state.score += 50;
+      saveBestIfBeaten();
+      if(state.isDaily) saveDailyBestIfBeaten(state.dailySeedDate, state.score);
+      renderHUD();
+      const stars = starsForClear();
+      renderStars(stars);
+      els.winSub.textContent = stars===3
+        ? `Perfect clear - no hearts lost! ${Math.ceil(state.timeLeft)}s to spare.`
+        : `Cleared with ${state.lives} heart${state.lives===1?'':'s'} left and ${Math.ceil(state.timeLeft)}s to spare.`;
+      els.overlayWin.classList.remove('hidden');
+      playWinSound();
+    }
+
+    requestAnimationFrame(render);
+  }
+
+  // ---------- interaction: play mode ----------
+  function canvasPointFromEvent(evt){
+    const rect = canvas.getBoundingClientRect();
+    const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+    const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+    const scaleX = (state.cols*state.cellSize) / rect.width;
+    const scaleY = (state.rows*state.cellSize) / rect.height;
+    return { x: (clientX-rect.left)*scaleX, y: (clientY-rect.top)*scaleY };
+  }
+
+  function distToSegment(p, a, b){
+    const dx=b.x-a.x, dy=b.y-a.y;
+    const len2 = dx*dx+dy*dy;
+    let t = len2 ? ((p.x-a.x)*dx + (p.y-a.y)*dy)/len2 : 0;
+    t = Math.max(0, Math.min(1, t));
+    const projX = a.x + t*dx, projY = a.y + t*dy;
+    return Math.hypot(p.x-projX, p.y-projY);
+  }
+
+  function hitTestArrow(point){
+    const list = activeArrows();
+    const threshold = state.cellSize*0.42;
+    for(let i=list.length-1;i>=0;i--){
+      const a = list[i];
+      const pts = a.cells.map(c=>cellCenter(c.r,c.c));
+      for(let j=0;j<pts.length-1;j++){
+        if(distToSegment(point, pts[j], pts[j+1]) <= threshold) return a;
+      }
+      if(pts.length===1 && Math.hypot(point.x-pts[0].x, point.y-pts[0].y)<=threshold) return a;
+    }
+    return null;
+  }
+
+  function handlePlayTap(point){
+    if(state.attractMode) return; // demo board only - real taps start once Play is clicked
+    if(state._won || state._lost) return;
+    if(state.tutorialActive){
+      state.tutorialActive = false;
+      els.tutorialBanner.classList.add('hidden');
+    }
+    const arrow = hitTestArrow(point);
+    if(!arrow) return;
+    const others = activeArrows();
+    if(isArrowFree(arrow, others)){
+      const comboBefore = state.combo;
+      state.combo += 1;
+      const comboBonus = Math.min((state.combo-1)*2, 20);
+      const awarded = 10 + comboBonus;
+      arrow.removing = true;
+      arrow.removeStart = performance.now();
+      state.score += awarded;
+      state.lastClear = { id: arrow.id, scoreAwarded: awarded, comboBefore };
+      playSlideSound();
+      if(arrow.fire) burnNeighbors(arrow);
+      renderHUD();
+    } else {
+      arrow.shakeUntil = performance.now()+320;
+      state.lives = Math.max(0, state.lives-1);
+      state.combo = 0;
+      playBlockSound();
+      if(typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(45);
+      renderHUD();
+      if(state.lives<=0){
+        setTimeout(()=> triggerLose('hearts'), 250);
+      }
+    }
+  }
+
+  // ---------- interaction: edit mode ----------
+  function cellFromPoint(point){
+    const c = Math.floor(point.x/state.cellSize);
+    const r = Math.floor(point.y/state.cellSize);
+    if(r<0||r>=state.rows||c<0||c>=state.cols) return null;
+    return {r,c};
+  }
+
+  function handleEditTap(point){
+    const cell = cellFromPoint(point);
+    if(!cell) return;
+    const path = state.editingPath;
+    if(path.length===0){
+      path.push(cell);
+      return;
+    }
+    const last = path[path.length-1];
+    const dr = cell.r-last.r, dc = cell.c-last.c;
+    const isAdjacent = (Math.abs(dr)+Math.abs(dc))===1;
+    const already = path.some(p=>p.r===cell.r && p.c===cell.c);
+    if(isAdjacent && !already){
+      path.push(cell);
+    }
+  }
+
+  function finishPath(){
+    if(state.editingPath.length<2){
+      state.editingPath = [];
+      return;
+    }
+    state.arrows.push({
+      id: state.nextId++,
+      cells: state.editingPath.slice(),
+      lockedBy: null,
+      frozenSide: null,
+      fire: false,
+      burning: false,
+      color: PALETTE[(state.arrows.length) % PALETTE.length],
+      removing:false, removed:false, removeStart:0, shakeUntil:0
+    });
+    state.editingPath = [];
+    refreshArrowList();
+  }
+
+  function refreshArrowList(){
+    els.arrowCount.textContent = state.arrows.length;
+    els.arrowList.innerHTML = '';
+    state.arrows.forEach(a=>{
+      const chip = document.createElement('div');
+      chip.className='chip';
+      chip.innerHTML = `<span class="swatch" style="background:${a.color}"></span> #${a.id} (${a.cells.length})`;
+      const del = document.createElement('button');
+      del.textContent = '✕';
+      del.onclick = ()=>{
+        state.arrows = state.arrows.filter(x=>x.id!==a.id);
+        refreshArrowList();
+      };
+      chip.appendChild(del);
+      els.arrowList.appendChild(chip);
+    });
+  }
+
+  // ---------- pointer wiring ----------
+  function onPointerDown(evt){
+    evt.preventDefault();
+    const point = canvasPointFromEvent(evt);
+    if(state.mode==='play') handlePlayTap(point);
+    else handleEditTap(point);
+  }
+  canvas.addEventListener('mousedown', onPointerDown);
+  canvas.addEventListener('touchstart', onPointerDown, {passive:false});
+
+  // ---------- mode switching ----------
+  function setMode(mode){
+    state.mode = mode;
+    document.getElementById('btnPlayMode').classList.toggle('active', mode==='play');
+    document.getElementById('btnEditMode').classList.toggle('active', mode==='edit');
+    els.playTools.classList.toggle('hidden', mode!=='play');
+    els.editTools.classList.toggle('hidden', mode!=='edit');
+    hideOverlays();
+    els.tutorialBanner.classList.toggle('hidden', !(mode==='play' && state.tutorialActive));
+    if(mode==='edit'){
+      state.editingPath = [];
+      els.editCols.value = state.cols;
+      els.editRows.value = state.rows;
+      refreshArrowList();
+    }
+  }
+  document.getElementById('btnPlayMode').onclick = ()=> setMode('play');
+  document.getElementById('btnEditMode').onclick = ()=> setMode('edit');
+
+  document.getElementById('btnMute').onclick = ()=>{
+    muted = !muted;
+    document.getElementById('muteIconOn').style.display = muted ? 'none' : '';
+    document.getElementById('muteIconOff').style.display = muted ? '' : 'none';
+    if(!muted) ensureAudio();
+    if(masterGain) masterGain.gain.linearRampToValueAtTime(muted?0:1, audioCtx.currentTime+0.15);
+  };
+
+  document.getElementById('btnHint').onclick = useHint;
+  document.getElementById('btnDismissTutorial').onclick = ()=>{
+    state.tutorialActive = false;
+    els.tutorialBanner.classList.add('hidden');
+  };
+  document.getElementById('btnUndo').onclick = useUndo;
+
+  document.getElementById('btnColorblind').onclick = ()=>{
+    state.colorblind = !state.colorblind;
+    try{ localStorage.setItem('arrowWeave_colorblind', state.colorblind?'1':'0'); }catch(e){}
+    els.btnColorblind.classList.toggle('active', state.colorblind);
+  };
+
+  // ---------- level flow ----------
+  // New game: reset everything and start over at level 1 (with the 1
+  // starting hint back). Also exits daily-challenge mode.
+  document.getElementById('btnGenerate').onclick = ()=>{
+    state.isDaily = false;
+    state.score = 0;
+    state.hintBank = 1;
+    startLevel(1);
+  };
+  // Daily challenge: same date = same seed = same board for everyone,
+  // so scores are directly comparable. Always restarts from level 1.
+  document.getElementById('btnDaily').onclick = ()=>{
+    state.isDaily = true;
+    state.dailySeedDate = todayStr();
+    state.score = 0;
+    state.hintBank = 1;
+    startLevel(1);
+  };
+  // Level select: jump straight to any level (exits daily mode, since
+  // daily boards are keyed to level 1 onward for a given date).
+  document.getElementById('btnLevelGo').onclick = ()=>{
+    const n = Math.max(1, parseInt(els.levelSelectInput.value) || 1);
+    state.isDaily = false;
+    startLevel(n);
+  };
+  // Retry: same level again, fresh board (doesn't cost/grant anything).
+  document.getElementById('btnRetry').onclick = ()=>{
+    startLevel(state.level);
+  };
+  // Game over -> start a brand new game from level 1 (exits daily mode).
+  document.getElementById('btnNewAfterLose').onclick = ()=>{
+    state.isDaily = false;
+    state.score = 0;
+    state.hintBank = 1;
+    startLevel(1);
+  };
+  // Cleared the level -> advance. A hint is earned every 5 completed levels,
+  // capped at MAX_HINTS.
+  document.getElementById('btnNextLevel').onclick = ()=>{
+    const completedLevel = state.level;
+    if(completedLevel % 5 === 0){
+      state.hintBank = Math.min(MAX_HINTS, state.hintBank + 1);
+    }
+    startLevel(completedLevel + 1);
+  };
+
+  // ---------- editor buttons ----------
+  document.getElementById('btnFinishPath').onclick = finishPath;
+  document.getElementById('btnUndoPoint').onclick = ()=>{ state.editingPath.pop(); };
+  document.getElementById('btnCancelPath').onclick = ()=>{ state.editingPath = []; };
+  document.getElementById('btnClearAll').onclick = ()=>{
+    if(state.arrows.length && !confirm('Clear all arrows?')) return;
+    state.arrows = []; state.editingPath = []; refreshArrowList();
+  };
+  document.getElementById('btnResize').onclick = ()=>{
+    const cols = Math.max(4, Math.min(10, parseInt(els.editCols.value)||6));
+    const rows = Math.max(4, Math.min(12, parseInt(els.editRows.value)||8));
+    if(state.arrows.length && !confirm('Resizing clears the current board. Continue?')) return;
+    state.cols = cols; state.rows = rows; state.arrows = []; state.editingPath = [];
+    layoutCanvas(); refreshArrowList();
+  };
+  document.getElementById('btnTestPlay').onclick = ()=>{
+    if(state.arrows.length===0){ alert('Draw at least one arrow first.'); return; }
+    state.arrows.forEach(a=>{ a.removing=false; a.removed=false; a.shakeUntil=0; a.burning=false; });
+    state.lives = state.maxLives = 3;
+    state.timeLeft = LEVEL_SECONDS;
+    state.hintUsedThisLevel = false;
+    state._won = false; state._lost = false;
+    setMode('play');
+    renderHUD();
+  };
+  document.getElementById('btnExport').onclick = ()=>{
+    const data = { cols: state.cols, rows: state.rows,
+      arrows: state.arrows.map(a=>({id:a.id, cells:a.cells, lockedBy:a.lockedBy||null, frozenSide:a.frozenSide||null, fire:!!a.fire})) };
+    els.jsonBox.value = JSON.stringify(data, null, 2);
+  };
+  document.getElementById('btnImport').onclick = ()=>{
+    try{
+      const data = JSON.parse(els.jsonBox.value);
+      state.cols = data.cols; state.rows = data.rows;
+      layoutCanvas();
+      state.arrows = data.arrows.map((a,idx)=>({
+        id: a.id!=null?a.id:idx+1, cells:a.cells, lockedBy: a.lockedBy!=null?a.lockedBy:null,
+        frozenSide: a.frozenSide||null, fire: !!a.fire, burning:false,
+        color: PALETTE[idx % PALETTE.length],
+        removing:false, removed:false, removeStart:0, shakeUntil:0
+      }));
+      state.nextId = state.arrows.length+1;
+      refreshArrowList();
+    }catch(e){
+      alert('Could not parse that JSON: '+e.message);
+    }
+  };
+
+  // ---------- boot ----------
+  loadPersisted();
+  els.btnColorblind.classList.toggle('active', state.colorblind);
+  // Level-jump is a developer/testing tool only - hidden from regular
+  // players, revealed by opening the page with ?dev=1 in the URL.
+  try{
+    if(new URLSearchParams(window.location.search).get('dev') === '1'){
+      document.getElementById('levelSelectRow').classList.remove('hidden');
+    }
+  }catch(e){ /* ignore */ }
+
+  document.getElementById('btnPlayNow').onclick = ()=>{
+    state.attractMode = false;
+    document.getElementById('landingPanel').classList.add('hidden');
+    document.getElementById('hudMain').classList.remove('hidden');
+    document.getElementById('hudSecondary').classList.remove('hidden');
+    document.getElementById('modeBar').classList.remove('hidden');
+    els.hintBar.classList.remove('hidden');
+    els.playTools.classList.remove('hidden');
+    ensureAudio();
+    startLevel(1);
+  };
+
+  layoutCanvas();
+  generateAttractDemo();
+  requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>
